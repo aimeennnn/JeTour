@@ -112,6 +112,15 @@ return [
     'mode'          => env('TRIPAY_MODE', 'sandbox'),
 ],
 
+'midtrans' => [
+    'clientKey' => env('MIDTRANS_CLIENT_KEY'),
+    'serverKey' => env('MIDTRANS_SERVER_KEY'),
+    'isProduction' => false, // ubah ke true kalau sudah production
+    'isSanitized' => true,
+    'is3ds' => true,
+],
+
+
 
     /*
     |--------------------------------------------------------------------------

@@ -40,34 +40,35 @@ class TicketController extends Controller
      */
     public function store(Request $request)
     {
-        // Validasi input
-        $request->validate([
-            'name_ticket' => 'required|string|max:255',
-            'price' => 'required|numeric|min:0',
-            'rules' => 'required|string',
-            'open' => 'required|string',
-            'close' => 'required|string',
-            'type' => 'required|string',
-            'status' => 'required|string',
-            'is_active' => 'required|boolean',
-            'destination_id' => 'required',
+        try {
+            $request->validate([
+                'name_ticket' => 'required|string|max:255',
+                'price' => 'required|numeric|min:0',
+                'rules' => 'required|string',
+                'open' => 'required|string',
+                'close' => 'required|string',
+                'type' => 'required|string',
+                'destination_id' => 'required',
 
-        ]);
-        // Simpan data tiket
-        Ticket::create([
-            'name_ticket' => $request->name,
-            'price' => $request->price,
-            'rules' => $request->rules,
-            'open' => $request->open,
-            'close' => $request->close,
-            'type' => $request->type,
-            'status' => $request->status,
-            'is_active' => $request->is_active,
-            'destination_id' => $request->destination_id,
-        ]);
+            ]);
+            Ticket::create([
+                'name_ticket' => $request->name_ticket,
+                'price' => $request->price,
+                'rules' => $request->rules,
+                'open' => $request->open,
+                'close' => $request->close,
+                'type' => $request->type,
+                'status' => 'Active',
+                'is_active' => $request->is_active,
+                'destination_id' => $request->destination_id,
+            ]);
 
-        // Redirect dengan pesan sukses
-        return redirect()->route('ticket.index')->with('success', 'Tiket berhasil ditambahkan.');
+            // Redirect dengan pesan sukses
+            return redirect()->route('ticket.index')->with('success', 'Tiket berhasil ditambahkan.');
+        } catch (\Exception $e) {
+            dd($e->getMessage());
+        }
+
     }
 
 
@@ -92,7 +93,23 @@ class TicketController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        try {
+            $request->validate([
+                'name_ticket' => 'required|string|max:255',
+                'price' => 'required|numeric|min:0',
+                'rules' => 'required|string',
+                'open' => 'required|string',
+                'close' => 'required|string',
+                'type' => 'required|string',
+                'status' => 'required|string',
+                'destination_id' => 'required',
+            ]);
+            $ticket = Ticket::find($id);
+            $ticket->update($request->all());
+            return redirect()->route('ticket.index')->with('success', 'Tiket berhasil diubah.');
+        } catch (\Exception $e) {
+            dd($e->getMessage());
+        }
     }
 
     /**
@@ -101,5 +118,14 @@ class TicketController extends Controller
     public function destroy(string $id)
     {
         //
+    }
+
+    /**
+     * Show checkout page for a ticket
+     */
+    public function checkout(string $id)
+    {
+        $ticket = Ticket::with('destination')->findOrFail($id);
+        return view('payment.checkout', compact('ticket'));
     }
 }

@@ -1,6 +1,6 @@
 <x-layout>
     <div class="w-full p-4 sm:p-6 bg-gray-50 min-h-screen">
-        <h1 class="text-2xl sm:text-3xl font-bold text-gray-800 mb-4 sm:mb-6">Data Wisata</h1>
+        <h1 class="text-2xl sm:text-3xl font-bold text-gray-800 mb-4 sm:mb-6">Data Transaksi</h1>
 
         <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 pb-4">
             <div>
@@ -12,61 +12,71 @@
                 </a>
             </div>
             <div class="w-full sm:w-auto">
-                <form method="GET" action="#" class="flex flex-col sm:flex-row gap-2 items-stretch sm:items-center">
-                    <select name="category" id="category"
-                        class="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:border-blue-500 w-full sm:w-auto">
-                        <option value="">Semua Kategori</option>
-                        <option value="1">Pantai</option>
-                    </select>
-                    <input type="text" name="search" id="search" placeholder="Cari nama wisata..."
+                <form method="GET" action="{{ route('transactions.index') }}" class="flex flex-col sm:flex-row gap-2 items-stretch sm:items-center">
+                    <input type="text" name="search" id="search" placeholder="Cari transaksi..."
                         class="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:border-blue-500 w-full sm:w-auto">
                     <button type="submit"
                         class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md transition w-full sm:w-auto">Filter</button>
                 </form>
             </div>
         </div>
-        <!-- Tabel Wisata -->
+        <!-- Tabel Transaksi -->
         <div class="overflow-x-auto bg-white rounded-lg shadow w-full">
             <table class="min-w-[600px] w-full text-left text-sm">
                 <thead class="bg-blue-100 text-gray-700">
                     <tr>
                         <th class="py-3 px-4 sm:px-6">#</th>
+                        <th class="py-3 px-4 sm:px-6">Order ID</th>
                         <th class="py-3 px-4 sm:px-6">Nama</th>
-                        <th class="py-3 px-4 sm:px-6">Email</th>
-                        <th class="py-3 px-4 sm:px-6">Telepon</th>
-                        <th class="py-3 px-4 sm:px-6">Tipe</th>
+                        <th class="py-3 px-4 sm:px-6">Tiket</th>
+                        <th class="py-3 px-4 sm:px-6">Jumlah</th>
+                        <th class="py-3 px-4 sm:px-6">Total</th>
+                        <th class="py-3 px-4 sm:px-6">Metode Pembayaran</th>
                         <th class="py-3 px-4 sm:px-6">Status</th>
                         <th class="py-3 px-4 sm:px-6 text-center">Aksi</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-200">
+                    @forelse($transactions as $index => $transaction)
                     <tr class="hover:bg-gray-100">
-                        <td class="py-3 px-4 sm:px-6">1</td>
-                        <td class="py-3 px-4 sm:px-6">Budi Santoso</td>
-                        <td class="py-3 px-4 sm:px-6">budi@example.com</td>
-                        <td class="py-3 px-4 sm:px-6">081234567890</td>
-                        <td class="py-3 px-4 sm:px-6">Online</td>
+                        <td class="py-3 px-4 sm:px-6">{{ $index + 1 }}</td>
+                        <td class="py-3 px-4 sm:px-6">{{ $transaction->order_id ?? '-' }}</td>
+                        <td class="py-3 px-4 sm:px-6">{{ $transaction->name }}</td>
+                        <td class="py-3 px-4 sm:px-6">{{ $transaction->ticket->name_ticket ?? '-' }}</td>
+                        <td class="py-3 px-4 sm:px-6">{{ $transaction->quantity ?? '-' }}</td>
+                        <td class="py-3 px-4 sm:px-6">Rp {{ number_format($transaction->gross_amount, 0, ',', '.') }}</td>
+                        <td class="py-3 px-4 sm:px-6">{{ $transaction->payment_type ?? '-' }}</td>
                         <td class="py-3 px-4 sm:px-6">
-                            <span class="inline-block px-2 py-1 text-xs text-white bg-green-500 rounded">PAID</span>
+                            @if($transaction->status == 'SUCCESS')
+                                <span class="inline-block px-2 py-1 text-xs text-white bg-green-500 rounded">SUKSES</span>
+                            @elseif($transaction->status == 'PENDING')
+                                <span class="inline-block px-2 py-1 text-xs text-white bg-yellow-500 rounded">PENDING</span>
+                            @elseif($transaction->status == 'FAILED')
+                                <span class="inline-block px-2 py-1 text-xs text-white bg-red-500 rounded">GAGAL</span>
+                            @elseif($transaction->status == 'EXPIRED')
+                                <span class="inline-block px-2 py-1 text-xs text-white bg-gray-500 rounded">KADALUARSA</span>
+                            @elseif($transaction->status == 'CANCELLED')
+                                <span class="inline-block px-2 py-1 text-xs text-white bg-red-500 rounded">DIBATALKAN</span>
+                            @else
+                                <span class="inline-block px-2 py-1 text-xs text-white bg-gray-500 rounded">{{ $transaction->status }}</span>
+                            @endif
                         </td>
                         <td class="py-3 px-4 sm:px-6 text-center space-x-2">
-                            <a href="#" class="inline-block mb-1 sm:mb-0">
-                                <button
-                                    class="bg-yellow-400 hover:bg-yellow-500 text-white px-3 py-1 rounded text-xs transition">Edit</button>
+                            <a href="{{ route('transactions.status', $transaction->order_id) }}" class="inline-block mb-1 sm:mb-0">
+                                <button class="bg-blue-400 hover:bg-blue-500 text-white px-3 py-1 rounded text-xs transition">Cek Status</button>
                             </a>
-                            <form action="#" method="POST" class="inline-block">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" onclick="return confirm('Yakin ingin menghapus?')"
-                                    class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-xs transition">Hapus</button>
-                            </form>
                         </td>
                     </tr>
+                    @empty
+                    <tr>
+                        <td colspan="9" class="py-6 text-center text-gray-500">Tidak ada data transaksi</td>
+                    </tr>
+                    @endforelse
                 </tbody>
             </table>
-            <!-- Dummy Pagination -->
-            <div class="py-4 border text-center text-sm text-gray-500">
-                Menampilkan 1 dari 1 data
+            <!-- Pagination -->
+            <div class="py-4 px-4 border text-center text-sm text-gray-500">
+                Menampilkan {{ $transactions->count() }} dari {{ $transactions->total() ?? $transactions->count() }} data
             </div>
         </div>
     </div>

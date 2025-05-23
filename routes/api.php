@@ -7,4 +7,8 @@ Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
 
-Route::post('/transaksi', [App\Http\Controllers\TransactionController::class, 'store']);
+// Remove the old tripay route
+// Route::post('/transaksi', [App\Http\Controllers\TransactionController::class, 'store']);
+
+// Add Midtrans notification callback route
+Route::post('/midtrans/notification', [App\Http\Controllers\MidtransController::class, 'notification']);

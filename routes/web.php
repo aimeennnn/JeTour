@@ -18,7 +18,7 @@ use Illuminate\Support\Facades\Route;
 //     return view('welcome');
 // });
 
-Route::view('/', 'index');
+Route::view('/', 'index')->name('home');
 Route::view('/location', 'pages.location');
 Route::view('/transportation', 'pages.transportation');
 Route::view('/hotel-details', 'pages.hotel_details');
@@ -49,3 +49,10 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->group(function () {
 
 
 require __DIR__ . '/auth.php';
+
+// Add these routes for Midtrans payment integration
+Route::get('/tickets/{id}/checkout', [App\Http\Controllers\TicketController::class, 'checkout'])->name('tickets.checkout');
+Route::post('/checkout/process', [App\Http\Controllers\MidtransController::class, 'checkout'])->name('checkout.process');
+Route::get('/payment/finish', [App\Http\Controllers\MidtransController::class, 'finish'])->name('payment.finish');
+Route::get('/transactions', [App\Http\Controllers\MidtransController::class, 'index'])->name('transactions.index');
+Route::get('/transactions/{order_id}/status', [App\Http\Controllers\MidtransController::class, 'status'])->name('transactions.status');
